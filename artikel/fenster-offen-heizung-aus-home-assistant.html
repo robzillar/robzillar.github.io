@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fenster offen, Heizung aus: Automation in Home Assistant | Bitwerkstatt</title>
+<meta name="description" content="Heizung automatisch ausschalten, wenn das Fenster offen ist: Anleitung für Home Assistant mit Fensterkontakt, inklusive Wiederherstellung der vorherigen Einstellung.">
+<link rel="canonical" href="https://robzillar.github.io/artikel/fenster-offen-heizung-aus-home-assistant.html">
+<meta property="og:title" content="Fenster offen, Heizung aus: Automation in Home Assistant">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://robzillar.github.io/artikel/fenster-offen-heizung-aus-home-assistant.html">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Fenster offen, Heizung aus: Automation mit Fensterkontakt in Home Assistant",
+  "datePublished": "2026-11-24",
+  "dateModified": "2026-11-24",
+  "inLanguage": "de-DE",
+  "author": {"@type": "Person", "name": "Robert"},
+  "publisher": {"@type": "Organization", "name": "Bitwerkstatt"}
+}
+</script>
+</head>
+<body>
+<header class="site"><div class="inner">
+  <a class="logo" href="/">Bit<span>werkstatt</span></a>
+  <nav><a href="/">Artikel</a><a href="/ueber-mich.html">Über mich</a></nav>
+</div></header>
+
+<main>
+<article>
+  <h1>Fenster offen, Heizung aus: Automation mit Fensterkontakt in Home Assistant</h1>
+  <div class="meta">Veröffentlicht am 24. November 2026 · Lesezeit ca. 5 Minuten</div>
+
+  <p class="lead">Wer bei laufender Heizung lüftet, heizt buchstäblich zum Fenster hinaus. Mit einem Fensterkontakt schaltet Home Assistant das Thermostat automatisch ab – und stellt danach die vorherige Einstellung wieder her.</p>
+
+  <h2>Reicht nicht die Fenster-offen-Erkennung des Thermostats?</h2>
+  <p>Viele smarte Thermostate erkennen offene Fenster an einem plötzlichen Temperaturabfall. Das funktioniert, reagiert aber oft erst nach einigen Minuten und erkennt gekippte Fenster schlecht. Ein Kontakt am Fenster weiß es dagegen sofort und sicher.</p>
+
+  <h2>Was du brauchst</h2>
+  <ul>
+    <li>Einen <strong>Tür-/Fensterkontakt</strong> (z. B. Zigbee), der in Home Assistant als <code>binary_sensor</code> erscheint</li>
+    <li>Ein <strong>Thermostat</strong>, das in Home Assistant als <code>climate</code>-Entität eingebunden ist</li>
+  </ul>
+
+  <h2>Die Automation</h2>
+  <p>Der Trick ist eine <strong>Momentaufnahme</strong> (Snapshot-Szene): Bevor die Heizung ausgeht, merkt sich Home Assistant den aktuellen Zustand des Thermostats. Beim Schließen wird genau dieser Zustand wiederhergestellt – egal ob vorher Automatik-Modus oder eine feste Temperatur eingestellt war.</p>
+  <pre><code>alias: Heizung - Fenster offen Wohnzimmer
+triggers:
+  - trigger: state
+    entity_id: binary_sensor.fenster_wohnzimmer
+    to: "on"
+    for:
+      minutes: 1
+    id: offen
+  - trigger: state
+    entity_id: binary_sensor.fenster_wohnzimmer
+    to: "off"
+    id: zu
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: offen
+        sequence:
+          - action: scene.create
+            data:
+              scene_id: heizung_wohnzimmer_vorher
+              snapshot_entities:
+                - climate.wohnzimmer
+          - action: climate.set_hvac_mode
+            target:
+              entity_id: climate.wohnzimmer
+            data:
+              hvac_mode: "off"
+      - conditions:
+          - condition: trigger
+            id: zu
+          - condition: state
+            entity_id: climate.wohnzimmer
+            state: "off"
+        sequence:
+          - action: scene.turn_on
+            target:
+              entity_id: scene.heizung_wohnzimmer_vorher
+mode: queued</code></pre>
+
+  <h3>Was die einzelnen Teile machen</h3>
+  <ul>
+    <li><strong><code>for: minutes: 1</code></strong> verhindert, dass die Heizung schon ausgeht, wenn jemand nur kurz das Fenster öffnet.</li>
+    <li><strong><code>scene.create</code></strong> speichert den aktuellen Zustand des Thermostats.</li>
+    <li><strong>Die Bedingung beim Schließen</strong> sorgt dafür, dass nur wiederhergestellt wird, wenn die Heizung auch wirklich von der Automation ausgeschaltet wurde.</li>
+  </ul>
+
+  <h2>Mehrere Fenster in einem Raum</h2>
+  <p>Hat ein Raum mehrere Fenster, fasst du die Kontakte am besten in einer <strong>Gruppe</strong> zusammen (Helfer → Gruppe → Binärsensor-Gruppe). Die Gruppe ist „offen“, sobald ein Fenster offen ist. In der Automation verwendest du dann einfach die Gruppen-Entität.</p>
+
+  <div class="hinweis"><strong>Tipp:</strong> Fällt ein Sensor aus oder ist die Batterie leer, merkt die Automation nichts davon. Eine zweite Automation, die bei Zustand <code>unavailable</code> eine Warnung schickt, schafft hier Sicherheit.</div>
+
+  <h2>Fazit</h2>
+  <p>Mit einem Fensterkontakt für wenige Euro pro Fenster und einer Automation sparst du beim Lüften Heizenergie, ohne daran denken zu müssen.</p>
+</article>
+</main>
+
+<footer><div class="inner">
+  <a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a>
+  <div>© 2026 Bitwerkstatt</div>
+</div></footer>
+</body>
+</html>

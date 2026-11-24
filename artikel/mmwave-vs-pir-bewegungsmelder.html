@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mmWave vs. PIR: Präsenzmelder und Bewegungsmelder im Vergleich | Bitwerkstatt</title>
+<meta name="description" content="mmWave-Präsenzmelder oder PIR-Bewegungsmelder? Funktionsweise, Vor- und Nachteile und welcher Sensor für Büro, Bad, Flur oder Küche am besten passt.">
+<link rel="canonical" href="https://robzillar.github.io/artikel/mmwave-vs-pir-bewegungsmelder.html">
+<meta property="og:title" content="mmWave vs. PIR: Präsenzmelder und Bewegungsmelder im Vergleich">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://robzillar.github.io/artikel/mmwave-vs-pir-bewegungsmelder.html">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "mmWave oder PIR? Präsenzmelder und Bewegungsmelder im Vergleich",
+  "datePublished": "2026-11-24",
+  "dateModified": "2026-11-24",
+  "inLanguage": "de-DE",
+  "author": {"@type": "Person", "name": "Robert"},
+  "publisher": {"@type": "Organization", "name": "Bitwerkstatt"}
+}
+</script>
+</head>
+<body>
+<header class="site"><div class="inner">
+  <a class="logo" href="/">Bit<span>werkstatt</span></a>
+  <nav><a href="/">Artikel</a><a href="/ueber-mich.html">Über mich</a></nav>
+</div></header>
+
+<main>
+<article>
+  <h1>mmWave oder PIR? Präsenzmelder und Bewegungsmelder im Vergleich</h1>
+  <div class="meta">Veröffentlicht am 24. November 2026 · Lesezeit ca. 6 Minuten</div>
+
+  <p class="lead">Du sitzt ruhig am Schreibtisch, und plötzlich geht das Licht aus? Das ist das typische Problem klassischer Bewegungsmelder. mmWave-Präsenzmelder lösen es – haben aber eigene Tücken.</p>
+
+  <h2>So funktioniert ein PIR-Bewegungsmelder</h2>
+  <p>PIR steht für <em>Passiv-Infrarot</em>. Der Sensor misst Wärmestrahlung und reagiert, wenn sich eine Wärmequelle – also ein Mensch – durch seine Erfassungszonen bewegt. Sitzt du still, sieht er dich nicht mehr.</p>
+  <ul>
+    <li><strong>Vorteile:</strong> günstig, sehr stromsparend (jahrelanger Batteriebetrieb), reagiert schnell, kaum Fehlauslösungen</li>
+    <li><strong>Nachteile:</strong> erkennt keine ruhenden Personen, braucht freie Sicht</li>
+  </ul>
+
+  <h2>So funktioniert ein mmWave-Präsenzmelder</h2>
+  <p>mmWave-Sensoren senden Radarwellen im Millimeterwellenbereich (meist 24 GHz oder 60 GHz) aus und werten die Reflexionen aus. Sie sind so empfindlich, dass sie sogar die Atembewegung einer ruhig sitzenden Person erkennen.</p>
+  <ul>
+    <li><strong>Vorteile:</strong> erkennt echte Anwesenheit, oft mit Entfernungsangabe und einstellbaren Zonen</li>
+    <li><strong>Nachteile:</strong> höherer Stromverbrauch (meist Netzbetrieb), anfälliger für Fehlauslösungen durch Ventilatoren, Vorhänge oder Haustiere; durchdringt teilweise dünne Wände</li>
+  </ul>
+
+  <h2>Direkter Vergleich</h2>
+  <table>
+    <tr><th></th><th>PIR</th><th>mmWave</th></tr>
+    <tr><td>Erkennt ruhende Personen</td><td>Nein</td><td>Ja</td></tr>
+    <tr><td>Reaktionszeit beim Betreten</td><td>Sehr schnell</td><td>Schnell, je nach Modell etwas langsamer</td></tr>
+    <tr><td>Stromversorgung</td><td>Batterie</td><td>Meist USB/Netzteil</td></tr>
+    <tr><td>Fehlauslösungen</td><td>Selten</td><td>Häufiger, muss eingestellt werden</td></tr>
+    <tr><td>Preis</td><td>Günstig</td><td>Mittel bis hoch</td></tr>
+  </table>
+
+  <h2>Welcher Sensor für welchen Raum?</h2>
+  <ul>
+    <li><strong>Flur und Treppe:</strong> Hier geht man nur durch. Ein PIR reicht völlig und schaltet besonders schnell.</li>
+    <li><strong>Büro und Wohnzimmer:</strong> Man sitzt lange still – klarer Fall für mmWave.</li>
+    <li><strong>Bad:</strong> mmWave, damit das Licht beim Duschen oder Zähneputzen nicht ausgeht. Achte auf die Montage außerhalb des Spritzbereichs.</li>
+    <li><strong>Küche:</strong> Meist mmWave, weil man beim Kochen länger an einer Stelle steht.</li>
+  </ul>
+
+  <h2>Das Beste aus beiden Welten: Kombination</h2>
+  <p>Viele aktuelle Präsenzmelder kombinieren beide Techniken: Der PIR schaltet das Licht beim Betreten sofort ein, der mmWave-Teil hält es an, solange jemand im Raum ist. Wer gern bastelt, kann so eine Kombination auch selbst mit einem ESP32, einem mmWave-Modul und einem PIR-Sensor aufbauen und per ESPHome oder MQTT in Home Assistant einbinden.</p>
+
+  <div class="hinweis"><strong>Tipp für die Automation:</strong> Schalte das Licht bei „Anwesenheit erkannt“ ein, aber erst nach einer Nachlaufzeit von z. B. 1–2 Minuten ohne Anwesenheit wieder aus. So überbrückst du kurze Erkennungslücken.</div>
+
+  <h2>Fazit</h2>
+  <p>PIR für Durchgangsbereiche, mmWave für Räume, in denen man sich aufhält – mit dieser Faustregel liegst du fast immer richtig.</p>
+</article>
+</main>
+
+<footer><div class="inner">
+  <a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a>
+  <div>© 2026 Bitwerkstatt</div>
+</div></footer>
+</body>
+</html>

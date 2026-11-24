@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Waschmaschine fertig: Push-Benachrichtigung mit Home Assistant | Bitwerkstatt</title>
+<meta name="description" content="So bekommst du eine Nachricht aufs Handy, wenn die Waschmaschine fertig ist – mit smarter Steckdose mit Strommessung und einer einfachen Home-Assistant-Automation.">
+<link rel="canonical" href="https://robzillar.github.io/artikel/waschmaschine-fertig-benachrichtigung-home-assistant.html">
+<meta property="og:title" content="Waschmaschine fertig: Push-Benachrichtigung mit Home Assistant">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://robzillar.github.io/artikel/waschmaschine-fertig-benachrichtigung-home-assistant.html">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Waschmaschine fertig? Push-Nachricht mit Home Assistant und smarter Steckdose",
+  "datePublished": "2026-11-24",
+  "dateModified": "2026-11-24",
+  "inLanguage": "de-DE",
+  "author": {"@type": "Person", "name": "Robert"},
+  "publisher": {"@type": "Organization", "name": "Bitwerkstatt"}
+}
+</script>
+</head>
+<body>
+<header class="site"><div class="inner">
+  <a class="logo" href="/">Bit<span>werkstatt</span></a>
+  <nav><a href="/">Artikel</a><a href="/ueber-mich.html">Über mich</a></nav>
+</div></header>
+
+<main>
+<article>
+  <h1>Waschmaschine fertig? Push-Nachricht mit Home Assistant und smarter Steckdose</h1>
+  <div class="meta">Veröffentlicht am 24. November 2026 · Lesezeit ca. 5 Minuten</div>
+
+  <p class="lead">Die Waschmaschine steht im Keller, und die Wäsche liegt Stunden nass in der Trommel? Mit einer Steckdose mit Strommessung erkennt Home Assistant zuverlässig, wann das Programm durch ist.</p>
+
+  <h2>Was du brauchst</h2>
+  <ul>
+    <li>Eine <strong>smarte Steckdose mit Leistungsmessung</strong> (Zigbee, WLAN oder Matter), die für die Last der Waschmaschine ausgelegt ist. Achte auf mindestens 16 A bzw. 3.680 W.</li>
+    <li>Die <strong>Home-Assistant-App</strong> auf dem Smartphone für Push-Nachrichten.</li>
+  </ul>
+
+  <h2>Das Prinzip</h2>
+  <p>Während des Waschens zieht die Maschine deutlich Strom. Ist das Programm fertig, fällt die Leistung auf wenige Watt im Standby. Allerdings gibt es auch während des Programms kurze Pausen, etwa beim Einweichen. Deshalb arbeiten wir mit zwei Regeln:</p>
+  <ol>
+    <li><strong>Start:</strong> Leistung über 10 W für 2 Minuten → Maschine läuft.</li>
+    <li><strong>Ende:</strong> Leistung unter 3 W für 5 Minuten, während die Maschine als „läuft“ markiert ist → fertig.</li>
+  </ol>
+
+  <h2>Schritt 1: Helfer anlegen</h2>
+  <p>Lege unter <em>Einstellungen → Geräte &amp; Dienste → Helfer</em> einen <strong>Schalter</strong> (input_boolean) namens <code>Waschmaschine läuft</code> an. Er merkt sich, ob gerade ein Waschgang aktiv ist.</p>
+
+  <h2>Schritt 2: Die Automation</h2>
+  <p>Beide Regeln passen in eine einzige Automation. Passe die Entitäten an deine Steckdose und dein Handy an:</p>
+  <pre><code>alias: Waschmaschine - Fertig-Meldung
+triggers:
+  - trigger: numeric_state
+    entity_id: sensor.waschmaschine_leistung
+    above: 10
+    for:
+      minutes: 2
+    id: start
+  - trigger: numeric_state
+    entity_id: sensor.waschmaschine_leistung
+    below: 3
+    for:
+      minutes: 5
+    id: ende
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id: start
+        sequence:
+          - action: input_boolean.turn_on
+            target:
+              entity_id: input_boolean.waschmaschine_laeuft
+      - conditions:
+          - condition: trigger
+            id: ende
+          - condition: state
+            entity_id: input_boolean.waschmaschine_laeuft
+            state: "on"
+        sequence:
+          - action: input_boolean.turn_off
+            target:
+              entity_id: input_boolean.waschmaschine_laeuft
+          - action: notify.mobile_app_dein_handy
+            data:
+              title: Waschmaschine
+              message: Die Wäsche ist fertig!
+mode: single</code></pre>
+
+  <h2>Schwellwerte richtig einstellen</h2>
+  <p>Jede Maschine verhält sich etwas anders. Schau dir im Verlauf der Leistungs-Entität einen kompletten Waschgang an: Wie hoch ist der Standby-Verbrauch, und wie lang sind die Pausen im Programm? Liegt der Standby bei deiner Maschine etwa bei 4 W, setzt du die Ende-Schwelle auf 6 W.</p>
+
+  <div class="hinweis"><strong>Tipp:</strong> Wer Waschmaschine und Trockner komfortabler überwachen möchte, findet in HACS die Integration <em>WashData</em>. Sie lernt die Leistungskurven der Programme und kann sogar die Restlaufzeit schätzen.</div>
+
+  <h2>Fazit</h2>
+  <p>Mit einer Steckdose für rund 15–25 € und einer Automation ist die Waschmaschine in zehn Minuten smart. Dasselbe Prinzip funktioniert auch für Trockner und Spülmaschine.</p>
+</article>
+</main>
+
+<footer><div class="inner">
+  <a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a>
+  <div>© 2026 Bitwerkstatt</div>
+</div></footer>
+</body>
+</html>

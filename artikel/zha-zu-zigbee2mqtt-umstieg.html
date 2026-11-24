@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Von ZHA zu Zigbee2MQTT umsteigen – Anleitung für Home Assistant | Bitwerkstatt</title>
+<meta name="description" content="Schritt-für-Schritt: So wechselst du in Home Assistant von ZHA zu Zigbee2MQTT – mit Backup, Mosquitto, Add-on-Konfiguration und dem Neu-Anlernen der Geräte.">
+<link rel="canonical" href="https://robzillar.github.io/artikel/zha-zu-zigbee2mqtt-umstieg.html">
+<meta property="og:title" content="Von ZHA zu Zigbee2MQTT umsteigen – Anleitung">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://robzillar.github.io/artikel/zha-zu-zigbee2mqtt-umstieg.html">
+<link rel="stylesheet" href="/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "Von ZHA zu Zigbee2MQTT umsteigen: Schritt-für-Schritt-Anleitung",
+  "datePublished": "2026-11-24",
+  "dateModified": "2026-11-24",
+  "inLanguage": "de-DE",
+  "author": {"@type": "Person", "name": "Robert"},
+  "publisher": {"@type": "Organization", "name": "Bitwerkstatt"}
+}
+</script>
+</head>
+<body>
+<header class="site"><div class="inner">
+  <a class="logo" href="/">Bit<span>werkstatt</span></a>
+  <nav><a href="/">Artikel</a><a href="/ueber-mich.html">Über mich</a></nav>
+</div></header>
+
+<main>
+<article>
+  <h1>Von ZHA zu Zigbee2MQTT umsteigen: Schritt-für-Schritt-Anleitung</h1>
+  <div class="meta">Veröffentlicht am 24. November 2026 · Lesezeit ca. 7 Minuten</div>
+
+  <p class="lead">ZHA ist der einfachste Einstieg in Zigbee mit Home Assistant. Wer aber viele Geräte unterschiedlicher Hersteller betreibt, stößt irgendwann an Grenzen. Zigbee2MQTT unterstützt deutlich mehr Geräte im Detail – so klappt der Umzug.</p>
+
+  <h2>Warum überhaupt wechseln?</h2>
+  <ul>
+    <li><strong>Größere Geräteunterstützung:</strong> Zigbee2MQTT pflegt eine sehr umfangreiche Geräteliste und bildet oft mehr Funktionen ab, etwa Einstellungen von Präsenzmeldern oder Tastenbelegungen von Fernbedienungen.</li>
+    <li><strong>Eigene Oberfläche:</strong> Im Z2M-Frontend siehst du Netzwerkkarte, Firmware-Updates (OTA) und Rohdaten jedes Geräts.</li>
+    <li><strong>Unabhängigkeit:</strong> Über MQTT laufen die Daten über einen offenen Standard und lassen sich auch von anderen Systemen nutzen.</li>
+  </ul>
+  <p>Dafür ist Zigbee2MQTT etwas aufwendiger einzurichten, weil zusätzlich ein MQTT-Broker nötig ist.</p>
+
+  <h2>Vor dem Umstieg: Das solltest du wissen</h2>
+  <div class="hinweis"><strong>Wichtig:</strong> ZHA und Zigbee2MQTT können nicht gleichzeitig denselben Zigbee-Stick nutzen. Plane den Umzug deshalb in einem Rutsch und rechne damit, dass du deine Geräte in der Regel neu anlernen musst.</div>
+  <ol>
+    <li><strong>Vollständiges Backup</strong> von Home Assistant erstellen (Einstellungen → System → Backups).</li>
+    <li><strong>Geräteliste notieren:</strong> Welche Geräte stehen in welchem Raum, und wie heißen ihre Entitäten? Wenn du die Namen später gleich vergibst, funktionieren viele Automationen ohne Anpassung weiter.</li>
+    <li><strong>Automationen prüfen:</strong> Automationen mit Geräte-Auslösern (Device Trigger) verweisen auf interne Geräte-IDs und müssen nach dem Umzug fast immer neu verknüpft werden. Automationen mit Entitäten lassen sich leichter retten.</li>
+  </ol>
+
+  <h2>Schritt 1: MQTT-Broker installieren</h2>
+  <p>Installiere unter <em>Einstellungen → Add-ons → Add-on Store</em> das Add-on <strong>Mosquitto broker</strong> und starte es. Anschließend erkennt Home Assistant die MQTT-Integration automatisch – bestätige sie einfach.</p>
+
+  <h2>Schritt 2: ZHA entfernen</h2>
+  <p>Lösche unter <em>Einstellungen → Geräte &amp; Dienste</em> die Integration <strong>Zigbee Home Automation</strong>. Erst dann ist der Zigbee-Stick frei für Zigbee2MQTT.</p>
+
+  <h2>Schritt 3: Zigbee2MQTT installieren und konfigurieren</h2>
+  <p>Füge im Add-on Store das Zigbee2MQTT-Repository hinzu (Drei-Punkte-Menü → Repositories) und installiere das Add-on. Beim ersten Start führt dich ein Assistent durch die Konfiguration. Die wichtigsten Angaben:</p>
+  <pre><code>mqtt:
+  server: mqtt://core-mosquitto:1883
+serial:
+  port: /dev/serial/by-id/usb-...   # Pfad deines Sticks
+  adapter: ember                    # z. B. für Silicon-Labs-Sticks wie den Connect ZBT-2
+frontend:
+  enabled: true
+homeassistant:
+  enabled: true</code></pre>
+  <p>Den Pfad deines Sticks findest du unter <em>Einstellungen → System → Hardware → Alle Hardware</em>. Der Adaptertyp hängt vom Chip ab: <code>ember</code> für aktuelle Silicon-Labs-Sticks, <code>zstack</code> für Texas-Instruments-Sticks.</p>
+
+  <h2>Schritt 4: Geräte neu anlernen</h2>
+  <p>Klicke im Z2M-Frontend auf <strong>Anlernen erlauben</strong> (Permit join) und setze deine Geräte nacheinander zurück. Tipps aus der Praxis:</p>
+  <ul>
+    <li><strong>Zuerst Router-Geräte</strong> anlernen – also Geräte mit Netzstrom wie Lampen und Steckdosen. Sie bauen das Mesh auf, über das sich batteriebetriebene Sensoren später verbinden.</li>
+    <li><strong>Batteriegeräte nah am Koordinator</strong> anlernen und danach an ihren Platz bringen.</li>
+    <li><strong>Direkt sinnvoll benennen:</strong> Ein Gerätename wie <code>Küche Klimasensor</code> ergibt in Home Assistant gut lesbare Entitäten.</li>
+  </ul>
+
+  <h2>Schritt 5: Automationen reparieren</h2>
+  <p>Öffne unter <em>Einstellungen → Reparaturen</em> und in deinen Automationen alle Stellen mit fehlenden Entitäten. Wenn du die Entitäten gleich benannt hast, ist hier wenig zu tun. Geräte-Auslöser von Tastern ersetzt du am besten durch MQTT- oder Ereignis-Entitäten der neuen Geräte.</p>
+
+  <h2>Fazit</h2>
+  <p>Der Umstieg kostet je nach Geräteanzahl einen Nachmittag. Danach hast du mehr Kontrolle, mehr Gerätefunktionen und eine übersichtliche Netzwerkkarte, mit der sich Funklöcher schnell finden lassen.</p>
+</article>
+</main>
+
+<footer><div class="inner">
+  <a href="/impressum.html">Impressum</a><a href="/datenschutz.html">Datenschutz</a>
+  <div>© 2026 Bitwerkstatt</div>
+</div></footer>
+</body>
+</html>
